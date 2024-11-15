@@ -80,7 +80,6 @@ class ScrollingTextCard extends HTMLElement {
     this.shadowRoot.appendChild(style);
   }
 
-
   // 让卡片支持配置面板
   static getConfigElement() {
     const element = document.createElement('scrolling-text-card-editor');
@@ -104,7 +103,6 @@ class ScrollingTextCard extends HTMLElement {
 
 customElements.define('scrolling-text-card', ScrollingTextCard);
 
-// 卡片配置编辑器
 class ScrollingTextCardEditor extends HTMLElement {
   constructor() {
     super();
@@ -128,17 +126,24 @@ class ScrollingTextCardEditor extends HTMLElement {
       </style>
       <div>
         <ha-textfield label="滚动文本" value="${this.config.text || ''}" 
-                      @input="${e => this.config.text = e.target.value}"></ha-textfield>
+                      @input="${(e) => this.updateConfig('text', e.target.value)}"></ha-textfield>
         <ha-textfield label="卡片标题" value="${this.config.title || '滚动通知'}"
-                      @input="${e => this.config.title = e.target.value}"></ha-textfield>
-        <ha-textfield label="滚动速度" value="${this.config.speed || 100}" 
-                      @input="${e => this.config.speed = e.target.value}"></ha-textfield>
+                      @input="${(e) => this.updateConfig('title', e.target.value)}"></ha-textfield>
+        <ha-input-number label="滚动速度" value="${this.config.speed || 100}" 
+                         min="1" max="1000" step="1"
+                         @input="${(e) => this.updateConfig('speed', e.target.value)}"></ha-input-number>
         <ha-textfield label="卡片宽度" value="${this.config.width || '100%'}"
-                      @input="${e => this.config.width = e.target.value}"></ha-textfield>
+                      @input="${(e) => this.updateConfig('width', e.target.value)}"></ha-textfield>
         <ha-textfield label="卡片高度" value="${this.config.height || '100px'}"
-                      @input="${e => this.config.height = e.target.value}"></ha-textfield>
+                      @input="${(e) => this.updateConfig('height', e.target.value)}"></ha-textfield>
       </div>
     `;
+  }
+
+  // 更新配置对象
+  updateConfig(key, value) {
+    this.config[key] = value;
+    this.dispatchEvent(new CustomEvent('config-changed', { detail: this.config }));
   }
 
   // 返回更新后的配置
