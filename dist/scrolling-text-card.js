@@ -39,7 +39,6 @@ class ScrollingTextCard extends HTMLElement {
     
     const cardContent = document.createElement('div');
     cardContent.className = 'scrolling-container';
-    // cardContent.textContent = this.text;
 
     card.style.width = this.width;  // 设置卡片的宽度
     card.style.height = this.height;  // 设置卡片的高度
@@ -60,8 +59,8 @@ class ScrollingTextCard extends HTMLElement {
         overflow: hidden;
         box-sizing: border-box;
         display: inline-block;
-        width: ${this.width};  /* 确保容器宽度为100%，匹配卡片的宽度 */
-        height: ${this.height}; /* 确保容器高度为100%，匹配卡片的高度 */
+        width: 100%;  /* 确保容器宽度为100%，匹配卡片的宽度 */
+        height: 100%; /* 确保容器高度为100%，匹配卡片的高度 */
         position: relative;
       }
 
