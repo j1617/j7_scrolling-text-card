@@ -108,7 +108,7 @@ class ScrollingTextCardEditor extends HTMLElement {
   render() {
     this.innerHTML = `
       <style>
-        ha-textfield, ha-input-number, ha-input-date {
+        ha-textfield, ha-input-number {
           width: 100%;
           margin-bottom: 16px;
         }
@@ -118,9 +118,11 @@ class ScrollingTextCardEditor extends HTMLElement {
                       @input="${e => this.config.text = e.target.value}"></ha-textfield>
         <ha-textfield label="卡片标题" value="${this.config.title || '滚动通知'}"
                       @input="${e => this.config.title = e.target.value}"></ha-textfield>
-        <ha-input-number label="滚动速度" value="${this.config.speed || 100}" 
+        <!-- 正确绑定事件，并确保 min、max、step 和 value 被设置 -->
+        <ha-input-number label="滚动速度" 
+                         .value="${this.config.speed || 100}" 
                          min="1" max="1000" step="1"
-                         @input="${e => this.config.speed = e.target.value}"></ha-input-number>
+                         @change="${e => this.config.speed = e.target.value}"></ha-input-number>
         <ha-textfield label="卡片宽度" value="${this.config.width || '100%'}"
                       @input="${e => this.config.width = e.target.value}"></ha-textfield>
         <ha-textfield label="卡片高度" value="${this.config.height || '100px'}"
