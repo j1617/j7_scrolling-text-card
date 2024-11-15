@@ -79,7 +79,7 @@ class ScrollingTextCard extends HTMLElement {
 
   // 让卡片支持配置面板
   static getConfigElement() {
-    const element = document.createElement('scrolling-text-card-editor');
+    const element = document.createElement('scrolling-text-card');
     return element;
   }
 
@@ -135,4 +135,4 @@ class ScrollingTextCardEditor extends HTMLElement {
   }
 }
 d
-customElements.define('j7_scrolling-text-card', ScrollingTextCardEditor);
+customElements.define('scrolling-text-card', ScrollingTextCardEditor);
