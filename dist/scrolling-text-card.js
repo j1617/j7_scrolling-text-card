@@ -39,7 +39,7 @@ class ScrollingTextCard extends HTMLElement {
     
     const cardContent = document.createElement('div');
     cardContent.className = 'scrolling-container';
-    cardContent.textContent = this.text;
+    // cardContent.textContent = this.text;
 
     card.style.width = this.width;  // 设置卡片的宽度
     card.style.height = this.height;  // 设置卡片的高度
