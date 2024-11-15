@@ -13,6 +13,9 @@ class ScrollingTextCard extends HTMLElement {
     if (!config.text) {
       throw new Error('Missing required "text" configuration');
     }
+    if (config.speed && (config.speed <= 0)) {
+      throw new Error('Speed must be a positive number');
+    }
     this.text = config.text;
     this.speed = config.speed || 20;
     this.title = config.title || "滚动通知";
@@ -40,17 +43,18 @@ class ScrollingTextCard extends HTMLElement {
     const cardContent = document.createElement('div');
     cardContent.className = 'scrolling-container';
     cardContent.textContent = this.text;
-
+  
     card.style.width = this.width;  // 设置卡片的宽度
     card.style.height = this.height;  // 设置卡片的高度
+    card.style.overflow = 'hidden';  // 隐藏溢出的内容
     
     card.appendChild(cardContent);
     this.shadowRoot.innerHTML = '';
     this.shadowRoot.appendChild(card);
-
+  
     this.styleScroll();
   }
-
+  
   // 设置滚动效果
   styleScroll() {
     const style = document.createElement('style');
@@ -59,18 +63,20 @@ class ScrollingTextCard extends HTMLElement {
         display: inline-block;
         white-space: nowrap;
         position: absolute;
-        left: 100%;
+        left: 100%; /* 初始位置在卡片右侧 */
         top: 50%;
         transform: translateY(-50%);
         animation: scrollText ${this.speed}s linear infinite;
+        width: fit-content; /* 宽度自适应内容 */
+        max-width: 100%; /* 最大宽度不超过卡片宽度 */
       }
-
+  
       @keyframes scrollText {
         0% {
-          left: 100%;
+          left: 100%; /* 初始位置在卡片右侧 */
         }
         100% {
-          left: -100%;
+          left: -100%; /* 结束位置在卡片左侧 */
         }
       }
     `;
@@ -85,7 +91,7 @@ class ScrollingTextCard extends HTMLElement {
 
   // 可视化编辑面板
   static getStubConfig() {
-    return { text: '', speed: 100, title: '滚动通知', width: '100%', height: '100px' };
+    return { text: '欢迎使用滚动文本卡片', speed: 50, title: '滚动通知', width: '100%', height: '100px' };
   }
 }
 
@@ -105,6 +111,31 @@ class ScrollingTextCardEditor extends HTMLElement {
   }
 
   // 渲染配置面板
+  // render() {
+  //   this.innerHTML = `
+  //     <style>
+  //       ha-textfield, ha-input-number {
+  //         width: 100%;
+  //         margin-bottom: 16px;
+  //       }
+  //     </style>
+  //     <div>
+  //       <ha-textfield label="滚动文本" value="${this.config.text || ''}" 
+  //                     @input="${e => this.config.text = e.target.value}"></ha-textfield>
+  //       <ha-textfield label="卡片标题" value="${this.config.title || '滚动通知'}"
+  //                     @input="${e => this.config.title = e.target.value}"></ha-textfield>
+  //       <!-- 正确绑定事件，并确保 min、max、step 和 value 被设置 -->
+  //       <ha-input-number label="滚动速度" 
+  //                        .value="${this.config.speed || 100}" 
+  //                        min="1" max="1000" step="1"
+  //                        @change="${e => this.config.speed = e.target.value}"></ha-input-number>
+  //       <ha-textfield label="卡片宽度" value="${this.config.width || '100%'}"
+  //                     @input="${e => this.config.width = e.target.value}"></ha-textfield>
+  //       <ha-textfield label="卡片高度" value="${this.config.height || '100px'}"
+  //                     @input="${e => this.config.height = e.target.value}"></ha-textfield>
+  //     </div>
+  //   `;
+  // }
   render() {
     this.innerHTML = `
       <style>
@@ -114,21 +145,19 @@ class ScrollingTextCardEditor extends HTMLElement {
         }
       </style>
       <div>
-        <ha-textfield label="滚动文本" value="${this.config.text || ''}" 
-                      @input="${e => this.config.text = e.target.value}"></ha-textfield>
-        <ha-textfield label="卡片标题" value="${this.config.title || '滚动通知'}"
-                      @input="${e => this.config.title = e.target.value}"></ha-textfield>
-        <!-- 正确绑定事件，并确保 min、max、step 和 value 被设置 -->
-        <ha-input-number label="滚动速度" 
-                         .value="${this.config.speed || 100}" 
-                         min="1" max="1000" step="1"
-                         @change="${e => this.config.speed = e.target.value}"></ha-input-number>
-        <ha-textfield label="卡片宽度" value="${this.config.width || '100%'}"
-                      @input="${e => this.config.width = e.target.value}"></ha-textfield>
-        <ha-textfield label="卡片高度" value="${this.config.height || '100px'}"
-                      @input="${e => this.config.height = e.target.value}"></ha-textfield>
+        <ha-textfield label="滚动文本" value="${this.config.text || ''}"></ha-textfield>
+        <ha-textfield label="卡片标题" value="${this.config.title || '滚动通知'}"></ha-textfield>
+        <ha-input-number label="滚动速度" .value="${this.config.speed || 100}" min="1" max="1000" step="1"></ha-input-number>
+        <ha-textfield label="卡片宽度" value="${this.config.width || '100%'}"></ha-textfield>
+        <ha-textfield label="卡片高度" value="${this.config.height || '100px'}"></ha-textfield>
       </div>
     `;
+  
+    this.querySelector('ha-textfield[label="滚动文本"]').addEventListener('input', (e) => this.config.text = e.target.value);
+    this.querySelector('ha-textfield[label="卡片标题"]').addEventListener('input', (e) => this.config.title = e.target.value);
+    this.querySelector('ha-input-number').addEventListener('change', (e) => this.config.speed = e.target.value);
+    this.querySelector('ha-textfield[label="卡片宽度"]').addEventListener('input', (e) => this.config.width = e.target.value);
+    this.querySelector('ha-textfield[label="卡片高度"]').addEventListener('input', (e) => this.config.height = e.target.value);
   }
 
   // 返回更新后的配置
