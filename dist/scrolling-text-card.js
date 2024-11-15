@@ -61,7 +61,7 @@ class ScrollingTextCard extends HTMLElement {
         white-space: nowrap;
         position: absolute;
         left: 100%; /* 初始位置在卡片右侧 */
-        top: 50%;
+        top: 70%;
         transform: translateY(-50%);
         animation: scrollText ${this.speed}s linear infinite;
         width: fit-content; /* 宽度自适应内容 */
@@ -102,58 +102,87 @@ class ScrollingTextCard extends HTMLElement {
 }
 
 customElements.define('scrolling-text-card', ScrollingTextCard);
-
+// 创建配置面板（编辑器）
 class ScrollingTextCardEditor extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
-    this.config = {};
   }
 
-  setConfig(config) {
-    this.config = config || {};
+  connectedCallback() {
     this.render();
   }
 
   render() {
-    this.shadowRoot.innerHTML = `
-      <style>
-        :host {
-          display: block;
-          padding: 16px;
-        }
-        input, select {
-          margin-bottom: 16px;
-          width: 100%;
-        }
-      </style>
-      <label for="title">标题:</label>
-      <input id="title" type="text" value="${this.config.title || ''}">
-      
-      <label for="text">文本:</label>
-      <input id="text" type="text" value="${this.config.text || ''}">
-      
-      <label for="speed">速度 (秒):</label>
-      <input id="speed" type="number" value="${this.config.speed || 20}">
-      
-      <label for="width">宽度:</label>
-      <input id="width" type="text" value="${this.config.width || '100%'}">
-      
-      <label for="height">高度:</label>
-      <input id="height" type="text" value="${this.config.height || '100px'}">
-    `;
+    const div = document.createElement('div');
 
-    this.shadowRoot.querySelector('#title').addEventListener('input', (e) => this.updateConfig('title', e.target.value));
-    this.shadowRoot.querySelector('#text').addEventListener('input', (e) => this.updateConfig('text', e.target.value));
-    this.shadowRoot.querySelector('#speed').addEventListener('input', (e) => this.updateConfig('speed', parseInt(e.target.value)));
-    this.shadowRoot.querySelector('#width').addEventListener('input', (e) => this.updateConfig('width', e.target.value));
-    this.shadowRoot.querySelector('#height').addEventListener('input', (e) => this.updateConfig('height', e.target.value));
+    // 标题输入框
+    const titleInput = document.createElement('input');
+    titleInput.type = 'text';
+    titleInput.placeholder = '卡片标题';
+    titleInput.value = this.config?.title || '滚动通知';
+    titleInput.addEventListener('input', () => {
+      this.config.title = titleInput.value;
+      this.updateConfig();
+    });
+
+    // 文本输入框
+    const textInput = document.createElement('textarea');
+    textInput.placeholder = '请输入滚动文本';
+    textInput.value = this.config?.text || '欢迎使用滚动文本卡片';
+    textInput.addEventListener('input', () => {
+      this.config.text = textInput.value;
+      this.updateConfig();
+    });
+
+    // 速度输入框
+    const speedInput = document.createElement('input');
+    speedInput.type = 'number';
+    speedInput.value = this.config?.speed || 50;
+    speedInput.addEventListener('input', () => {
+      this.config.speed = parseInt(speedInput.value, 10);
+      this.updateConfig();
+    });
+
+    // 宽度输入框
+    const widthInput = document.createElement('input');
+    widthInput.type = 'text';
+    widthInput.value = this.config?.width || '100%';
+    widthInput.addEventListener('input', () => {
+      this.config.width = widthInput.value;
+      this.updateConfig();
+    });
+
+    // 高度输入框
+    const heightInput = document.createElement('input');
+    heightInput.type = 'text';
+    heightInput.value = this.config?.height || '100px';
+    heightInput.addEventListener('input', () => {
+      this.config.height = heightInput.value;
+      this.updateConfig();
+    });
+
+    // 配置更新事件
+    this.config = this.config || ScrollingTextCard.getStubConfig();
+
+    div.appendChild(titleInput);
+    div.appendChild(textInput);
+    div.appendChild(speedInput);
+    div.appendChild(widthInput);
+    div.appendChild(heightInput);
+
+    this.shadowRoot.innerHTML = '';
+    this.shadowRoot.appendChild(div);
   }
 
-  updateConfig(key, value) {
-    this.config[key] = value;
-    this.dispatchEvent(new CustomEvent('config-changed', { detail: this.config }));
+  // 发送配置变化的事件
+  updateConfig() {
+    const event = new CustomEvent('config-changed', {
+      detail: this.config,
+      bubbles: true,
+      composed: true
+    });
+    this.dispatchEvent(event);
   }
 }
-
 customElements.define('scrolling-text-card-editor', ScrollingTextCardEditor);
