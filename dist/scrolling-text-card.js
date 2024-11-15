@@ -3,18 +3,18 @@ class ScrollingTextCard extends HTMLElement {
     super();
     this.attachShadow({ mode: 'open' });
     this.text = '';
-    this.speed = 100;
+    this.speed = 20;
     this.width = '100%'; // 默认宽度
     this.height = '100px'; // 默认高度
   }
 
   // 必须实现 setConfig 方法来接收配置
   setConfig(config) {
-    if (!config.scrolling_text) {
-      throw new Error('Missing required "scrolling_text" configuration');
+    if (!config.text) {
+      throw new Error('Missing required "text" configuration');
     }
-    this.text = config.scrolling_text;
-    this.speed = config.speed || 100;
+    this.text = config.text;
+    this.speed = config.speed || 20;
     this.title = config.title || "滚动通知";
     this.width = config.width || '100%';  // 设置默认宽度
     this.height = config.height || '100px';  // 设置默认高度
@@ -25,7 +25,7 @@ class ScrollingTextCard extends HTMLElement {
   getConfig() {
     return {
       title: this.title,
-      scrolling_text: this.text,
+      text: this.text,
       speed: this.speed,
       width: this.width,
       height: this.height,
@@ -60,8 +60,8 @@ class ScrollingTextCard extends HTMLElement {
         overflow: hidden;
         box-sizing: border-box;
         display: inline-block;
-        width: 100%;  /* 确保容器宽度为100%，匹配卡片的宽度 */
-        height: 100%; /* 确保容器高度为100%，匹配卡片的高度 */
+        width: ${this.width};  /* 确保容器宽度为100%，匹配卡片的宽度 */
+        height: ${this.height}; /* 确保容器高度为100%，匹配卡片的高度 */
         animation: scrollText ${this.speed}s linear infinite;
       }
 
@@ -85,7 +85,7 @@ class ScrollingTextCard extends HTMLElement {
 
   // 可视化编辑面板
   static getStubConfig() {
-    return { scrolling_text: '', speed: 100, title: '滚动通知', width: '100%', height: '100px' };
+    return { text: '', speed: 100, title: '滚动通知', width: '100%', height: '100px' };
   }
 }
 
@@ -114,8 +114,8 @@ class ScrollingTextCardEditor extends HTMLElement {
         }
       </style>
       <div>
-        <ha-textfield label="滚动文本" value="${this.config.scrolling_text || ''}" 
-                      @input="${e => this.config.scrolling_text = e.target.value}"></ha-textfield>
+        <ha-textfield label="滚动文本" value="${this.config.text || ''}" 
+                      @input="${e => this.config.text = e.target.value}"></ha-textfield>
         <ha-textfield label="卡片标题" value="${this.config.title || '滚动通知'}"
                       @input="${e => this.config.title = e.target.value}"></ha-textfield>
         <ha-input-number label="滚动速度" value="${this.config.speed || 100}" 
