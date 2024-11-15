@@ -106,49 +106,53 @@ customElements.define('scrolling-text-card', ScrollingTextCard);
 class ScrollingTextCardEditor extends HTMLElement {
   constructor() {
     super();
+    this.attachShadow({ mode: 'open' });
     this.config = {};
   }
 
-  // 当用户配置面板更新时
   setConfig(config) {
-    this.config = config;
+    this.config = config || {};
     this.render();
   }
 
-  // 渲染配置面板
   render() {
-    this.innerHTML = `
+    this.shadowRoot.innerHTML = `
       <style>
-        ha-textfield, ha-input-number, ha-input-date {
-          width: 100%;
+        :host {
+          display: block;
+          padding: 16px;
+        }
+        input, select {
           margin-bottom: 16px;
+          width: 100%;
         }
       </style>
-      <div>
-        <ha-textfield label="滚动文本" value="${this.config.text || ''}" 
-                      @input="${(e) => this.updateConfig('text', e.target.value)}"></ha-textfield>
-        <ha-textfield label="卡片标题" value="${this.config.title || '滚动通知'}"
-                      @input="${(e) => this.updateConfig('title', e.target.value)}"></ha-textfield>
-        <ha-input-number label="滚动速度" value="${this.config.speed || 100}" 
-                         min="1" max="1000" step="1"
-                         @input="${(e) => this.updateConfig('speed', e.target.value)}"></ha-input-number>
-        <ha-textfield label="卡片宽度" value="${this.config.width || '100%'}"
-                      @input="${(e) => this.updateConfig('width', e.target.value)}"></ha-textfield>
-        <ha-textfield label="卡片高度" value="${this.config.height || '100px'}"
-                      @input="${(e) => this.updateConfig('height', e.target.value)}"></ha-textfield>
-      </div>
+      <label for="title">标题:</label>
+      <input id="title" type="text" value="${this.config.title || ''}">
+      
+      <label for="text">文本:</label>
+      <input id="text" type="text" value="${this.config.text || ''}">
+      
+      <label for="speed">速度 (秒):</label>
+      <input id="speed" type="number" value="${this.config.speed || 20}">
+      
+      <label for="width">宽度:</label>
+      <input id="width" type="text" value="${this.config.width || '100%'}">
+      
+      <label for="height">高度:</label>
+      <input id="height" type="text" value="${this.config.height || '100px'}">
     `;
+
+    this.shadowRoot.querySelector('#title').addEventListener('input', (e) => this.updateConfig('title', e.target.value));
+    this.shadowRoot.querySelector('#text').addEventListener('input', (e) => this.updateConfig('text', e.target.value));
+    this.shadowRoot.querySelector('#speed').addEventListener('input', (e) => this.updateConfig('speed', parseInt(e.target.value)));
+    this.shadowRoot.querySelector('#width').addEventListener('input', (e) => this.updateConfig('width', e.target.value));
+    this.shadowRoot.querySelector('#height').addEventListener('input', (e) => this.updateConfig('height', e.target.value));
   }
 
-  // 更新配置对象
   updateConfig(key, value) {
     this.config[key] = value;
     this.dispatchEvent(new CustomEvent('config-changed', { detail: this.config }));
-  }
-
-  // 返回更新后的配置
-  getConfig() {
-    return this.config;
   }
 }
 
