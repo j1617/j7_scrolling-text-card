@@ -51,52 +51,52 @@ class ScrollingTextCard extends HTMLElement {
     this.styleScroll();
   }
 
-// 设置滚动效果
-styleScroll() {
-  const style = document.createElement('style');
-  style.textContent = `
-    .scrolling-container {
-      white-space: nowrap;
-      overflow: hidden;
-      box-sizing: border-box;
-      display: inline-block;
-      width: ${this.width};  /* 确保容器宽度为100%，匹配卡片的宽度 */
-      height: ${this.height}; /* 确保容器高度为100%，匹配卡片的高度 */
-      position: relative;
-    }
+  // 设置滚动效果
+  styleScroll() {
+    const style = document.createElement('style');
+    style.textContent = `
+      .scrolling-container {
+        white-space: nowrap;
+        overflow: hidden;
+        box-sizing: border-box;
+        display: inline-block;
+        width: ${this.width};  /* 确保容器宽度为100%，匹配卡片的宽度 */
+        height: ${this.height}; /* 确保容器高度为100%，匹配卡片的高度 */
+        position: relative;
+      }
 
-    .scrolling-text {
-      display: inline-block;
-      white-space: nowrap;
-      position: absolute;
-      left: 100%;
-      top: 50%;
-      transform: translateY(-50%);
-      animation: scrollText ${this.speed}s linear infinite;
-    }
-
-    @keyframes scrollText {
-      0% {
+      .scrolling-text {
+        display: inline-block;
+        white-space: nowrap;
+        position: absolute;
         left: 100%;
+        top: 50%;
+        transform: translateY(-50%);
+        animation: scrollText ${this.speed}s linear infinite;
       }
-      100% {
-        left: -100%;
+
+      @keyframes scrollText {
+        0% {
+          left: 100%;
+        }
+        100% {
+          left: -100%;
+        }
       }
-    }
-  `;
-  this.shadowRoot.appendChild(style);
+    `;
+    this.shadowRoot.appendChild(style);
 
-  // 创建滚动容器和文本元素
-  const container = document.createElement('div');
-  container.className = 'scrolling-container';
+    // 创建滚动容器和文本元素
+    const container = document.createElement('div');
+    container.className = 'scrolling-container';
 
-  const textElement = document.createElement('div');
-  textElement.className = 'scrolling-text';
-  textElement.textContent = this.text;  // 假设 this.text 是你要显示的文字
+    const textElement = document.createElement('div');
+    textElement.className = 'scrolling-text';
+    textElement.textContent = this.text;  // 假设 this.text 是你要显示的文字
 
-  container.appendChild(textElement);
-  this.shadowRoot.appendChild(container);
-}
+    container.appendChild(textElement);
+    this.shadowRoot.appendChild(container);
+  }
 
   // 让卡片支持配置面板
   static getConfigElement() {
