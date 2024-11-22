@@ -9,7 +9,6 @@ class ScrollingTextCard extends HTMLElement {
     this.title = "滚动通知";
   }
 
-  // 必须实现 setConfig 方法来接收配置
   setConfig(config) {
     if (!config.text) {
       throw new Error('Missing required "text" configuration');
@@ -22,7 +21,6 @@ class ScrollingTextCard extends HTMLElement {
     this.render();
   }
 
-  // 返回当前配置，用于UI编辑
   getConfig() {
     return {
       title: this.title,
@@ -33,7 +31,6 @@ class ScrollingTextCard extends HTMLElement {
     };
   }
 
-  // 渲染卡片内容
   render() {
     const card = document.createElement('ha-card');
     card.header = this.title;
@@ -53,7 +50,6 @@ class ScrollingTextCard extends HTMLElement {
     this.styleScroll();
   }
   
-  // 设置滚动效果
   styleScroll() {
     const style = document.createElement('style');
     style.textContent = `
@@ -62,7 +58,7 @@ class ScrollingTextCard extends HTMLElement {
         white-space: nowrap;
         position: absolute;
         left: 100%; /* 初始位置在卡片右侧 */
-        top: 70%;
+        top: 50%;
         transform: translateY(-50%);
         animation: scrollText ${this.speed}s linear infinite;
         width: fit-content; /* 宽度自适应内容 */
@@ -81,7 +77,6 @@ class ScrollingTextCard extends HTMLElement {
     this.shadowRoot.appendChild(style);
   }
 
-  // 让卡片支持配置面板
   static getConfigElement() {
     const element = document.createElement('scrolling-text-card-editor');
     element.addEventListener('config-changed', (event) => {
@@ -96,7 +91,6 @@ class ScrollingTextCard extends HTMLElement {
     return element;
   }
 
-  // 可视化编辑面板
   static getStubConfig() {
     return { text: '欢迎使用滚动文本卡片', speed: 50, title: '滚动通知', width: '100%', height: '100px' };
   }
@@ -104,7 +98,6 @@ class ScrollingTextCard extends HTMLElement {
 
 customElements.define('scrolling-text-card', ScrollingTextCard);
 
-// 创建配置面板（编辑器）
 class ScrollingTextCardEditor extends HTMLElement {
   constructor() {
     super();
@@ -187,7 +180,6 @@ class ScrollingTextCardEditor extends HTMLElement {
     this.shadowRoot.appendChild(div);
   }
 
-  // 发送配置变化的事件
   updateConfig() {
     const event = new CustomEvent('config-changed', {
       detail: this.config,
@@ -198,7 +190,6 @@ class ScrollingTextCardEditor extends HTMLElement {
     this.updatePreview(this.shadowRoot.querySelector('.preview'));
   }
 
-  // 更新预览区域的内容和样式
   updatePreview(previewDiv) {
     const card = document.createElement('ha-card');
     card.header = this.config.title;
@@ -240,4 +231,5 @@ class ScrollingTextCardEditor extends HTMLElement {
     previewDiv.appendChild(style);
   }
 }
+
 customElements.define('scrolling-text-card-editor', ScrollingTextCardEditor);
