@@ -164,6 +164,15 @@ class ScrollingTextCardEditor extends HTMLElement {
       this.updateConfig();
     });
 
+    // 预览区域
+    const previewDiv = document.createElement('div');
+    previewDiv.className = 'preview';
+    previewDiv.style.border = '1px solid #ccc';
+    previewDiv.style.padding = '10px';
+    previewDiv.style.marginTop = '10px';
+
+    this.updatePreview(previewDiv);
+
     // 配置更新事件
     this.config = this.config || ScrollingTextCard.getStubConfig();
 
@@ -172,6 +181,7 @@ class ScrollingTextCardEditor extends HTMLElement {
     div.appendChild(speedInput);
     div.appendChild(widthInput);
     div.appendChild(heightInput);
+    div.appendChild(previewDiv);
 
     this.shadowRoot.innerHTML = '';
     this.shadowRoot.appendChild(div);
@@ -185,6 +195,49 @@ class ScrollingTextCardEditor extends HTMLElement {
       composed: true
     });
     this.dispatchEvent(event);
+    this.updatePreview(this.shadowRoot.querySelector('.preview'));
+  }
+
+  // 更新预览区域的内容和样式
+  updatePreview(previewDiv) {
+    const card = document.createElement('ha-card');
+    card.header = this.config.title;
+
+    const cardContent = document.createElement('div');
+    cardContent.className = 'scrolling-container';
+    cardContent.textContent = this.config.text;
+
+    card.style.width = this.config.width;
+    card.style.height = this.config.height;
+    card.style.overflow = 'hidden';
+
+    card.appendChild(cardContent);
+    previewDiv.innerHTML = '';
+    previewDiv.appendChild(card);
+
+    const style = document.createElement('style');
+    style.textContent = `
+      .scrolling-container {
+        display: inline-block;
+        white-space: nowrap;
+        position: absolute;
+        left: 100%;
+        top: 50%;
+        transform: translateY(-50%);
+        animation: scrollText ${this.config.speed}s linear infinite;
+        width: fit-content;
+        max-width: 100%;
+      }
+      @keyframes scrollText {
+        0% {
+          left: 100%;
+        }
+        100% {
+          left: -100%;
+        }
+      }
+    `;
+    previewDiv.appendChild(style);
   }
 }
 customElements.define('scrolling-text-card-editor', ScrollingTextCardEditor);
