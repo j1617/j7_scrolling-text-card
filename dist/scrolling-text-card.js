@@ -25,6 +25,22 @@ class ScrollingTextCard extends HTMLElement {
     this.render();
   }
 
+    // 蹇呴』瀹炵幇 setConfig 鏂规硶鏉ユ帴鏀堕厤缃�
+    setConfig(config) {
+      if (!config.text) {
+        throw new Error('Missing required "text" configuration');
+      }
+      if (config.speed && (config.speed <= 0)) {
+        throw new Error('Speed must be a positive number');
+      }
+      this.text = config.text;
+      this.speed = config.speed || 20;
+      this.title = config.title || "婊氬姩閫氱煡";
+      this.width = config.width || '100%';  // 璁剧疆榛樿瀹藉害
+      this.height = config.height || '100px';  // 璁剧疆榛樿楂樺害
+      this.render();
+    }
+
   // 返回当前配置，用于UI编辑
   getConfig() {
     return {
@@ -131,72 +147,67 @@ customElements.define('scrolling-text-card', ScrollingTextCard);
 class ScrollingTextCardEditor extends HTMLElement {
   constructor() {
     super();
-    // this.attachShadow({ mode: 'open' });
-    // this.config = { ...ScrollingTextCard.getStubConfig() };  // 使用默认配置
+    // 确保这里没有设置任何属性
   }
 
+  static get observedAttributes() {
+    return ['config'];
+  }
+  
   connectedCallback() {
+    console.log('Connected callback:', this.getAttribute('config'));
+    // 初始化 config
+    this.config = this.getAttribute('config') ? JSON.parse(this.getAttribute('config')) : {};
+    this.innerHTML = `
+      <div>
+        <label for="text">Text:</label>
+        <input type="text" id="text" value="${this.config.text || ''}" />
+        <label for="speed">Speed:</label>
+        <input type="number" id="speed" value="${this.config.speed || 0}" />
+        <!-- 其他配置项 -->
+      </div>
+    `;
+    // 绑定事件
+    this.querySelector('#text').addEventListener('input', this._handleTextChange.bind(this));
+    this.querySelector('#speed').addEventListener('input', this._handleSpeedChange.bind(this));
     this.render();
   }
 
+  attributeChangedCallback(name, oldValue, newValue) {
+    console.log(`Attribute ${name} changed from ${oldValue} to ${newValue}`);
+    if (name === 'config') {
+      this.config = JSON.parse(newValue);
+      this.render();
+    }
+  }
+
+  _handleTextChange(event) {
+    this.config.text = event.target.value;
+    this._dispatchConfigChanged();
+  }
+
+  _handleSpeedChange(event) {
+    this.config.speed = parseInt(event.target.value, 10);
+    this._dispatchConfigChanged();
+  }
+
+  _dispatchConfigChanged() {
+    this.dispatchEvent(new CustomEvent('config-changed', { detail: this.config }));
+  }
+
   render() {
-    const { text, speed, title, width, height } = this.config;
-    
-    this.shadowRoot.innerHTML = `
+    if (!this.config) {
+      this.config = {};
+    }
+    this.innerHTML = `
       <div>
-        <h3>滚动文本卡片配置</h3>
-        <div>
-          <label for="title">标题:</label>
-          <input type="text" id="title" value="${title}">
-        </div>
-        <div>
-          <label for="text">文本:</label>
-          <textarea id="text">${text}</textarea>
-        </div>
-        <div>
-          <label for="speed">滚动速度 (秒):</label>
-          <input type="number" id="speed" value="${speed}" min="1">
-        </div>
-        <div>
-          <label for="width">宽度:</label>
-          <input type="text" id="width" value="${width}">
-        </div>
-        <div>
-          <label for="height">高度:</label>
-          <input type="text" id="height" value="${height}">
-        </div>
-        <button id="apply-config">应用配置</button>
+        <label for="text">Text:</label>
+        <input type="text" id="text" value="${this.config.text || ''}" />
+        <label for="speed">Speed:</label>
+        <input type="number" id="speed" value="${this.config.speed || 0}" />
+        <!-- 其他配置项 -->
       </div>
     `;
-
-    this.shadowRoot.querySelector('#apply-config').addEventListener('click', () => {
-      const speed = parseInt(this.shadowRoot.querySelector('#speed').value, 10);
-      const width = this.shadowRoot.querySelector('#width').value;
-      const height = this.shadowRoot.querySelector('#height').value;
-
-      if (isNaN(speed) || speed <= 0) {
-        alert('滚动速度必须为正整数');
-        return;
-      }
-
-      if (!/^\d+(\.\d+)?(px|%)$/.test(width) || !/^\d+(\.\d+)?(px|%)$/.test(height)) {
-        alert('宽度和高度必须为有效的 CSS 尺寸值');
-        return;
-      }
-
-      this.config = {
-        title: this.shadowRoot.querySelector('#title').value,
-        text: this.shadowRoot.querySelector('#text').value,
-        speed: speed,
-        width: width,
-        height: height,
-      };
-      this.dispatchEvent(new CustomEvent('config-changed', {
-        detail: this.config,
-        bubbles: true,
-        composed: true,
-      }));
-    });
   }
 }
 
