@@ -184,6 +184,11 @@ class ScrollingTextCardEditor extends HTMLElement {
     }
   }
 
+  setConfig(config) {
+    this.config = config;
+    this.render();
+  }
+
   _handleTextChange(event) {
     this.config.text = event.target.value;
     this._dispatchConfigChanged();
