@@ -182,8 +182,6 @@ customElements.define('scrolling-text-card', ScrollingTextCard);
 class ScrollingTextCardEditor extends HTMLElement {
   constructor() {
     super();
-    this.attachShadow({ mode: 'open' });
-    this._config = {};
   }
 
   set hass(hass) {
