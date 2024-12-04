@@ -107,3 +107,64 @@ class ScrollingTextCard extends HTMLElement {
 
 customElements.define('scrolling-text-card', ScrollingTextCard);
 
+
+
+class ScrollingTextCardEditor extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open' });
+    this.config = { ...ScrollingTextCard.getStubConfig() };  // 使用默认配置
+  }
+
+  connectedCallback() {
+    this.render();
+  }
+
+  render() {
+    const { text, speed, title, width, height } = this.config;
+    
+    this.shadowRoot.innerHTML = `
+      <div>
+        <h3>滚动文本卡片配置</h3>
+        <div>
+          <label for="title">标题:</label>
+          <input type="text" id="title" value="${title}">
+        </div>
+        <div>
+          <label for="text">文本:</label>
+          <textarea id="text">${text}</textarea>
+        </div>
+        <div>
+          <label for="speed">滚动速度 (秒):</label>
+          <input type="number" id="speed" value="${speed}" min="1">
+        </div>
+        <div>
+          <label for="width">宽度:</label>
+          <input type="text" id="width" value="${width}">
+        </div>
+        <div>
+          <label for="height">高度:</label>
+          <input type="text" id="height" value="${height}">
+        </div>
+        <button id="apply-config">应用配置</button>
+      </div>
+    `;
+    
+    this.shadowRoot.querySelector('#apply-config').addEventListener('click', () => {
+      this.config = {
+        title: this.shadowRoot.querySelector('#title').value,
+        text: this.shadowRoot.querySelector('#text').value,
+        speed: parseInt(this.shadowRoot.querySelector('#speed').value, 10),
+        width: this.shadowRoot.querySelector('#width').value,
+        height: this.shadowRoot.querySelector('#height').value,
+      };
+      this.dispatchEvent(new CustomEvent('config-changed', {
+        detail: this.config,
+        bubbles: true,
+        composed: true,
+      }));
+    });
+  }
+}
+
+customElements.define('scrolling-text-card-editor', ScrollingTextCardEditor);
