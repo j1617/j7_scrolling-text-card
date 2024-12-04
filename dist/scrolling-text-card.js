@@ -176,50 +176,50 @@ class ScrollingTextCardEditor extends HTMLElement {
     return ['config'];
   }
   
-  connectedCallback() {
-    console.log('Connected callback:', this.getAttribute('config'));
-    // 初始化 config
-    this.config = this.getAttribute('config') ? JSON.parse(this.getAttribute('config')) : {};
-    if (!this.config.text) {
-      this.config.text = ''; // 提供默认值
-    }
-    if (!this.config.speed) {
-      this.config.speed = 20; // 提供默认值
-    }
-    if (!this.config.fontSize) {
-      this.config.fontSize = '16px'; // 提供默认值
-    }
-    if (!this.config.color) {
-      this.config.color = '#000000'; // 提供默认值
-    }
-    this.innerHTML = `
-      <div>
-        <label for="text">Text:</label>
-        <input type="text" id="text" value="${this.config.text || ''}" />
-        <label for="speed">Speed:</label>
-        <input type="number" id="speed" value="${this.config.speed || 0}" />
-        <label for="title">Title:</label>
-        <input type="text" id="title" value="${this.config.title || ''}" />
-        <label for="width">Width:</label>
-        <input type="text" id="width" value="${this.config.width || ''}" />
-        <label for="height">Height:</label>
-        <input type="text" id="height" value="${this.config.height || ''}" />
-        <label for="font-size">Font Size:</label>
-        <input type="text" id="font-size" value="${this.config.fontSize || ''}" />
-        <label for="color">Color:</label>
-        <input type="color" id="color" value="${this.config.color || ''}" />
-      </div>
-    `;
-    // 绑定事件
-    this.querySelector('#text').addEventListener('input', this._handleTextChange.bind(this));
-    this.querySelector('#speed').addEventListener('input', this._handleSpeedChange.bind(this));
-    this.querySelector('#title').addEventListener('input', this._handleTitleChange.bind(this));
-    this.querySelector('#width').addEventListener('input', this._handleWidthChange.bind(this));
-    this.querySelector('#height').addEventListener('input', this._handleHeightChange.bind(this));
-    this.querySelector('#font-size').addEventListener('input', this._handleFontSizeChange.bind(this));
-    this.querySelector('#color').addEventListener('input', this._handleColorChange.bind(this));
-    this.render();
-  }
+  // connectedCallback() {
+  //   console.log('Connected callback:', this.getAttribute('config'));
+  //   // 初始化 config
+  //   this.config = this.getAttribute('config') ? JSON.parse(this.getAttribute('config')) : {};
+  //   if (!this.config.text) {
+  //     this.config.text = ''; // 提供默认值
+  //   }
+  //   if (!this.config.speed) {
+  //     this.config.speed = 20; // 提供默认值
+  //   }
+  //   if (!this.config.fontSize) {
+  //     this.config.fontSize = '16px'; // 提供默认值
+  //   }
+  //   if (!this.config.color) {
+  //     this.config.color = '#000000'; // 提供默认值
+  //   }
+  //   this.innerHTML = `
+  //     <div>
+  //       <label for="text">Text:</label>
+  //       <input type="text" id="text" value="${this.config.text || ''}" />
+  //       <label for="speed">Speed:</label>
+  //       <input type="number" id="speed" value="${this.config.speed || 0}" />
+  //       <label for="title">Title:</label>
+  //       <input type="text" id="title" value="${this.config.title || ''}" />
+  //       <label for="width">Width:</label>
+  //       <input type="text" id="width" value="${this.config.width || ''}" />
+  //       <label for="height">Height:</label>
+  //       <input type="text" id="height" value="${this.config.height || ''}" />
+  //       <label for="font-size">Font Size:</label>
+  //       <input type="text" id="font-size" value="${this.config.fontSize || ''}" />
+  //       <label for="color">Color:</label>
+  //       <input type="color" id="color" value="${this.config.color || ''}" />
+  //     </div>
+  //   `;
+  //   // 绑定事件
+  //   this.querySelector('#text').addEventListener('input', this._handleTextChange.bind(this));
+  //   this.querySelector('#speed').addEventListener('input', this._handleSpeedChange.bind(this));
+  //   this.querySelector('#title').addEventListener('input', this._handleTitleChange.bind(this));
+  //   this.querySelector('#width').addEventListener('input', this._handleWidthChange.bind(this));
+  //   this.querySelector('#height').addEventListener('input', this._handleHeightChange.bind(this));
+  //   this.querySelector('#font-size').addEventListener('input', this._handleFontSizeChange.bind(this));
+  //   this.querySelector('#color').addEventListener('input', this._handleColorChange.bind(this));
+  //   this.render();
+  // }
 
   attributeChangedCallback(name, oldValue, newValue) {
     console.log(`Attribute ${name} changed from ${oldValue} to ${newValue}`);
