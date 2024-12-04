@@ -54,6 +54,7 @@ class ScrollingTextCard extends HTMLElement {
     this.shadowRoot.appendChild(card);
   
     this.styleScroll();
+    this.startScrolling(); // 启动滚动
   }
   
   // 设置滚动效果
@@ -101,13 +102,6 @@ class ScrollingTextCard extends HTMLElement {
   
     animate();
   }
-  
-  render() {
-    // 其他代码...
-    this.shadowRoot.appendChild(card);
-    this.styleScroll();
-    this.startScrolling(); // 启动滚动
-  }
 
   // 让卡片支持配置面板
   static getConfigElement() {
@@ -118,6 +112,8 @@ class ScrollingTextCard extends HTMLElement {
         const card = document.querySelector('scrolling-text-card');
         if (card) {
           card.setConfig(config);
+        } else {
+          console.error('scrolling-text-card element not found');
         }
       });
     });
@@ -131,9 +127,6 @@ class ScrollingTextCard extends HTMLElement {
 }
 
 customElements.define('scrolling-text-card', ScrollingTextCard);
-
-
-
 
 class ScrollingTextCardEditor extends HTMLElement {
   constructor() {
@@ -175,22 +168,22 @@ class ScrollingTextCardEditor extends HTMLElement {
         <button id="apply-config">应用配置</button>
       </div>
     `;
-  
+
     this.shadowRoot.querySelector('#apply-config').addEventListener('click', () => {
       const speed = parseInt(this.shadowRoot.querySelector('#speed').value, 10);
       const width = this.shadowRoot.querySelector('#width').value;
       const height = this.shadowRoot.querySelector('#height').value;
-  
+
       if (isNaN(speed) || speed <= 0) {
         alert('滚动速度必须为正整数');
         return;
       }
-  
+
       if (!/^\d+(\.\d+)?(px|%)$/.test(width) || !/^\d+(\.\d+)?(px|%)$/.test(height)) {
         alert('宽度和高度必须为有效的 CSS 尺寸值');
         return;
       }
-  
+
       this.config = {
         title: this.shadowRoot.querySelector('#title').value,
         text: this.shadowRoot.querySelector('#text').value,
