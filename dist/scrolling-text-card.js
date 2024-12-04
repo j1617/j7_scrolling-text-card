@@ -159,7 +159,6 @@ class ScrollingTextCard extends HTMLElement {
     });
     return element;
   }
-
   // 可视化编辑面板
   static getStubConfig() {
     return { text: '欢迎使用滚动文本卡片', speed: 20, title: '滚动通知', width: '100%', height: '100px', fontSize: '16px', color: '#000000' };
@@ -178,3 +177,79 @@ class ScrollingTextCard extends HTMLElement {
 }
 
 customElements.define('scrolling-text-card', ScrollingTextCard);
+
+
+class ScrollingTextCardEditor extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open' });
+    this._config = {};
+  }
+
+  set hass(hass) {
+    this._hass = hass;
+  }
+
+  setConfig(config) {
+    this._config = config;
+    this.render();
+  }
+
+  render() {
+    const card = document.createElement('ha-card');
+    card.header = '编辑滚动文本卡片';
+
+    const cardContent = document.createElement('div');
+    cardContent.innerHTML = `
+      <div>
+        <label for="title">标题:</label>
+        <input type="text" id="title" value="${this._config.title || ''}">
+      </div>
+      <div>
+        <label for="text">文本:</label>
+        <input type="text" id="text" value="${this._config.text || ''}">
+      </div>
+      <div>
+        <label for="speed">速度 (秒):</label>
+        <input type="number" id="speed" value="${this._config.speed || 20}">
+      </div>
+      <div>
+        <label for="width">宽度:</label>
+        <input type="text" id="width" value="${this._config.width || '100%'}">
+      </div>
+      <div>
+        <label for="height">高度:</label>
+        <input type="text" id="height" value="${this._config.height || '100px'}">
+      </div>
+      <div>
+        <label for="fontSize">字体大小:</label>
+        <input type="text" id="fontSize" value="${this._config.fontSize || '16px'}">
+      </div>
+      <div>
+        <label for="color">字体颜色:</label>
+        <input type="color" id="color" value="${this._config.color || '#000000'}">
+      </div>
+      <button id="save">保存</button>
+    `;
+
+    const saveButton = cardContent.querySelector('#save');
+    saveButton.addEventListener('click', () => {
+      const newConfig = {
+        title: cardContent.querySelector('#title').value,
+        text: cardContent.querySelector('#text').value,
+        speed: parseFloat(cardContent.querySelector('#speed').value),
+        width: cardContent.querySelector('#width').value,
+        height: cardContent.querySelector('#height').value,
+        fontSize: cardContent.querySelector('#fontSize').value,
+        color: cardContent.querySelector('#color').value,
+      };
+      this.dispatchEvent(new CustomEvent('config-changed', { detail: newConfig }));
+    });
+
+    card.appendChild(cardContent);
+    this.shadowRoot.innerHTML = '';
+    this.shadowRoot.appendChild(card);
+  }
+}
+
+customElements.define('scrolling-text-card-editor', ScrollingTextCardEditor);
