@@ -30,8 +30,8 @@ class ScrollingTextCard extends HTMLElement {
 
   // 必须实现 setConfig 方法来接收配置
   setConfig(config) {
-    if (!config.text) {
-      throw new Error('Missing required "text" configuration');
+    if (!config.text && !config.entity) {
+      throw new Error('Missing required "text" or "entity" configuration');
     }
     if (config.speed && (config.speed <= 0)) {
       throw new Error('Speed must be a positive number');
@@ -39,10 +39,11 @@ class ScrollingTextCard extends HTMLElement {
     if (config.width && (config.width <= 0)) {
       throw new Error('Width must be a positive number');
     }
+
     // 获取实体状态
     const entityId = config.entity;
-    if (entityId) {
-      const stateObj = hass.states[entityId];
+    if (entityId && this.hass) {
+      const stateObj = this.hass.states[entityId];
       if (stateObj) {
         config.text = stateObj.state;
       } else {
@@ -59,7 +60,7 @@ class ScrollingTextCard extends HTMLElement {
     this.color = config.color || '#000000';  // 设置默认字体颜色
     this.render();
   }
-  
+
   // 返回当前配置，用于UI编辑
   getConfig() {
     return {
@@ -77,7 +78,7 @@ class ScrollingTextCard extends HTMLElement {
   render() {
     const card = document.createElement('ha-card');
     card.header = this.title;
-    
+
     const cardContent = document.createElement('div');
     cardContent.className = 'scrolling-container';
     cardContent.textContent = this.text;
@@ -87,15 +88,15 @@ class ScrollingTextCard extends HTMLElement {
     card.style.width = this.width;  // 设置卡片的宽度
     card.style.height = this.height;  // 设置卡片的高度
     card.style.overflow = 'hidden';  // 隐藏溢出的内容
-    
+
     card.appendChild(cardContent);
     this.shadowRoot.innerHTML = '';
     this.shadowRoot.appendChild(card);
-  
+
     this.styleScroll();
     this.startScrolling(); // 启动滚动
   }
-  
+
   // 设置滚动效果
   styleScroll() {
     const style = document.createElement('style');
@@ -111,7 +112,7 @@ class ScrollingTextCard extends HTMLElement {
         width: fit-content; /* 宽度自适应内容 */
         max-width: 100%; /* 最大宽度不超过卡片宽度 */
       }
-  
+
       @keyframes scrollText {
         0% {
           left: 0; /* 初始位置在卡片左侧 */
@@ -129,7 +130,7 @@ class ScrollingTextCard extends HTMLElement {
     const container = this.shadowRoot.querySelector('.scrolling-container');
     const step = 1; // 每帧移动的像素数
     const interval = 1000 / this.speed; // 每秒移动的帧数
-  
+
     const animate = () => {
       left -= step;
       if (left < -container.offsetWidth) {
@@ -138,7 +139,7 @@ class ScrollingTextCard extends HTMLElement {
       container.style.left = `${left}px`;
       requestAnimationFrame(animate);
     };
-  
+
     animate();
   }
 
@@ -163,139 +164,17 @@ class ScrollingTextCard extends HTMLElement {
   static getStubConfig() {
     return { text: '欢迎使用滚动文本卡片', speed: 20, title: '滚动通知', width: '100%', height: '100px', fontSize: '16px', color: '#000000' };
   }
+
+  // 监听状态变化事件
+  connectedCallback() {
+    if (this.hass) {
+      this.hass.connection.subscribeStates((state) => {
+        if (state.entity_id === this.config.entity) {
+          this.setConfig({ ...this.config, text: state.state });
+        }
+      });
+    }
+  }
 }
 
 customElements.define('scrolling-text-card', ScrollingTextCard);
-
-class ScrollingTextCardEditor extends HTMLElement {
-  constructor() {
-    super();
-  }
-
-  static get observedAttributes() {
-    return ['config'];
-  }
-  
-  // connectedCallback() {
-  //   console.log('Connected callback:', this.getAttribute('config'));
-  //   // 初始化 config
-  //   this.config = this.getAttribute('config') ? JSON.parse(this.getAttribute('config')) : {};
-  //   if (!this.config.text) {
-  //     this.config.text = ''; // 提供默认值
-  //   }
-  //   if (!this.config.speed) {
-  //     this.config.speed = 20; // 提供默认值
-  //   }
-  //   if (!this.config.fontSize) {
-  //     this.config.fontSize = '16px'; // 提供默认值
-  //   }
-  //   if (!this.config.color) {
-  //     this.config.color = '#000000'; // 提供默认值
-  //   }
-  //   this.innerHTML = `
-  //     <div>
-  //       <label for="text">Text:</label>
-  //       <input type="text" id="text" value="${this.config.text || ''}" />
-  //       <label for="speed">Speed:</label>
-  //       <input type="number" id="speed" value="${this.config.speed || 0}" />
-  //       <label for="title">Title:</label>
-  //       <input type="text" id="title" value="${this.config.title || ''}" />
-  //       <label for="width">Width:</label>
-  //       <input type="text" id="width" value="${this.config.width || ''}" />
-  //       <label for="height">Height:</label>
-  //       <input type="text" id="height" value="${this.config.height || ''}" />
-  //       <label for="font-size">Font Size:</label>
-  //       <input type="text" id="font-size" value="${this.config.fontSize || ''}" />
-  //       <label for="color">Color:</label>
-  //       <input type="color" id="color" value="${this.config.color || ''}" />
-  //     </div>
-  //   `;
-  //   // 绑定事件
-  //   this.querySelector('#text').addEventListener('input', this._handleTextChange.bind(this));
-  //   this.querySelector('#speed').addEventListener('input', this._handleSpeedChange.bind(this));
-  //   this.querySelector('#title').addEventListener('input', this._handleTitleChange.bind(this));
-  //   this.querySelector('#width').addEventListener('input', this._handleWidthChange.bind(this));
-  //   this.querySelector('#height').addEventListener('input', this._handleHeightChange.bind(this));
-  //   this.querySelector('#font-size').addEventListener('input', this._handleFontSizeChange.bind(this));
-  //   this.querySelector('#color').addEventListener('input', this._handleColorChange.bind(this));
-  //   this.render();
-  // }
-
-  attributeChangedCallback(name, oldValue, newValue) {
-    console.log(`Attribute ${name} changed from ${oldValue} to ${newValue}`);
-    if (name === 'config') {
-      this.config = JSON.parse(newValue);
-      this.render();
-    }
-  }
-
-  setConfig(config) {
-    this.config = config;
-    this.render();
-  }
-
-  _handleTextChange(event) {
-    this.config.text = event.target.value;
-    this._dispatchConfigChanged();
-  }
-
-  _handleSpeedChange(event) {
-    this.config.speed = parseInt(event.target.value, 10);
-    this._dispatchConfigChanged();
-  }
-
-  _handleTitleChange(event) {
-    this.config.title = event.target.value;
-    this._dispatchConfigChanged();
-  }
-
-  _handleWidthChange(event) {
-    this.config.width = event.target.value;
-    this._dispatchConfigChanged();
-  }
-
-  _handleHeightChange(event) {
-    this.config.height = event.target.value;
-    this._dispatchConfigChanged();
-  }
-
-  _handleFontSizeChange(event) {
-    this.config.fontSize = event.target.value;
-    this._dispatchConfigChanged();
-  }
-
-  _handleColorChange(event) {
-    this.config.color = event.target.value;
-    this._dispatchConfigChanged();
-  }
-
-  _dispatchConfigChanged() {
-    this.dispatchEvent(new CustomEvent('config-changed', { detail: this.config }));
-  }
-
-  render() {
-    if (!this.config) {
-      this.config = {};
-    }
-    this.innerHTML = `
-      <div>
-        <label for="text">Text:</label>
-        <input type="text" id="text" value="${this.config.text || ''}" />
-        <label for="speed">Speed:</label>
-        <input type="number" id="speed" value="${this.config.speed || 0}" />
-        <label for="title">Title:</label>
-        <input type="text" id="title" value="${this.config.title || ''}" />
-        <label for="width">Width:</label>
-        <input type="text" id="width" value="${this.config.width || ''}" />
-        <label for="height">Height:</label>
-        <input type="text" id="height" value="${this.config.height || ''}" />
-        <label for="font-size">Font Size:</label>
-        <input type="text" id="font-size" value="${this.config.fontSize || ''}" />
-        <label for="color">Color:</label>
-        <input type="color" id="color" value="${this.config.color || ''}" />
-      </div>
-    `;
-  }
-}
-
-customElements.define('scrolling-text-card-editor', ScrollingTextCardEditor);
