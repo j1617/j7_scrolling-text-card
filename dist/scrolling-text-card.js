@@ -6,6 +6,7 @@ class ScrollingTextCard extends HTMLElement {
     this.speed = 20;
     this.width = '100%'; // 默认宽度
     this.height = '100px'; // 默认高度
+    this.title = '滚动通知'; // 默认标题
   }
 
   // 必须实现 setConfig 方法来接收配置
@@ -83,7 +84,6 @@ class ScrollingTextCard extends HTMLElement {
     this.shadowRoot.appendChild(style);
   }
 
-
   // 让卡片支持配置面板
   static getConfigElement() {
     const element = document.createElement('scrolling-text-card-editor');
@@ -106,6 +106,7 @@ class ScrollingTextCard extends HTMLElement {
 }
 
 customElements.define('scrolling-text-card', ScrollingTextCard);
+
 
 
 
