@@ -7,12 +7,16 @@ class ScrollingTextCard extends HTMLElement {
     this.width = '100%'; // 默认宽度
     this.height = '100px'; // 默认高度
     this.title = '滚动通知'; // 默认标题
+    this.fontSize = '16px'; // 默认字体大小
+    this.color = '#000000'; // 默认字体颜色
     // 清除所有预设属性
     this.removeAttribute('text');
     this.removeAttribute('speed');
     this.removeAttribute('width');
     this.removeAttribute('height');
     this.removeAttribute('title');
+    this.removeAttribute('font-size');
+    this.removeAttribute('color');
   }
 
   // 必须实现 setConfig 方法来接收配置
@@ -28,6 +32,8 @@ class ScrollingTextCard extends HTMLElement {
     this.title = config.title || "滚动通知";
     this.width = config.width || '100%';  // 设置默认宽度
     this.height = config.height || '100px';  // 设置默认高度
+    this.fontSize = config.fontSize || '16px';  // 设置默认字体大小
+    this.color = config.color || '#000000';  // 设置默认字体颜色
     this.render();
   }
   
@@ -39,6 +45,8 @@ class ScrollingTextCard extends HTMLElement {
       speed: this.speed,
       width: this.width,
       height: this.height,
+      fontSize: this.fontSize,
+      color: this.color,
     };
   }
 
@@ -50,7 +58,9 @@ class ScrollingTextCard extends HTMLElement {
     const cardContent = document.createElement('div');
     cardContent.className = 'scrolling-container';
     cardContent.textContent = this.text;
-  
+    cardContent.style.fontSize = this.fontSize;  // 应用字体大小
+    cardContent.style.color = this.color;  // 应用字体颜色
+
     card.style.width = this.width;  // 设置卡片的宽度
     card.style.height = this.height;  // 设置卡片的高度
     card.style.overflow = 'hidden';  // 隐藏溢出的内容
@@ -128,7 +138,7 @@ class ScrollingTextCard extends HTMLElement {
 
   // 可视化编辑面板
   static getStubConfig() {
-    return { text: '欢迎使用滚动文本卡片', speed: 20, title: '滚动通知', width: '100%', height: '100px' };
+    return { text: '欢迎使用滚动文本卡片', speed: 20, title: '滚动通知', width: '100%', height: '100px', fontSize: '16px', color: '#000000' };
   }
 }
 
@@ -153,6 +163,12 @@ class ScrollingTextCardEditor extends HTMLElement {
     if (!this.config.speed) {
       this.config.speed = 20; // 提供默认值
     }
+    if (!this.config.fontSize) {
+      this.config.fontSize = '16px'; // 提供默认值
+    }
+    if (!this.config.color) {
+      this.config.color = '#000000'; // 提供默认值
+    }
     this.innerHTML = `
       <div>
         <label for="text">Text:</label>
@@ -165,6 +181,10 @@ class ScrollingTextCardEditor extends HTMLElement {
         <input type="text" id="width" value="${this.config.width || ''}" />
         <label for="height">Height:</label>
         <input type="text" id="height" value="${this.config.height || ''}" />
+        <label for="font-size">Font Size:</label>
+        <input type="text" id="font-size" value="${this.config.fontSize || ''}" />
+        <label for="color">Color:</label>
+        <input type="color" id="color" value="${this.config.color || ''}" />
       </div>
     `;
     // 绑定事件
@@ -173,6 +193,8 @@ class ScrollingTextCardEditor extends HTMLElement {
     this.querySelector('#title').addEventListener('input', this._handleTitleChange.bind(this));
     this.querySelector('#width').addEventListener('input', this._handleWidthChange.bind(this));
     this.querySelector('#height').addEventListener('input', this._handleHeightChange.bind(this));
+    this.querySelector('#font-size').addEventListener('input', this._handleFontSizeChange.bind(this));
+    this.querySelector('#color').addEventListener('input', this._handleColorChange.bind(this));
     this.render();
   }
 
@@ -214,6 +236,16 @@ class ScrollingTextCardEditor extends HTMLElement {
     this._dispatchConfigChanged();
   }
 
+  _handleFontSizeChange(event) {
+    this.config.fontSize = event.target.value;
+    this._dispatchConfigChanged();
+  }
+
+  _handleColorChange(event) {
+    this.config.color = event.target.value;
+    this._dispatchConfigChanged();
+  }
+
   _dispatchConfigChanged() {
     this.dispatchEvent(new CustomEvent('config-changed', { detail: this.config }));
   }
@@ -234,6 +266,10 @@ class ScrollingTextCardEditor extends HTMLElement {
         <input type="text" id="width" value="${this.config.width || ''}" />
         <label for="height">Height:</label>
         <input type="text" id="height" value="${this.config.height || ''}" />
+        <label for="font-size">Font Size:</label>
+        <input type="text" id="font-size" value="${this.config.fontSize || ''}" />
+        <label for="color">Color:</label>
+        <input type="color" id="color" value="${this.config.color || ''}" />
       </div>
     `;
   }
