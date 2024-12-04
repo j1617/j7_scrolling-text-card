@@ -9,6 +9,7 @@ class ScrollingTextCard extends HTMLElement {
     this.title = '滚动通知'; // 默认标题
     this.fontSize = '16px'; // 默认字体大小
     this.color = '#000000'; // 默认字体颜色
+    this.hass = null; // 添加对 hass 对象的支持
     // 清除所有预设属性
     this.removeAttribute('text');
     this.removeAttribute('speed');
@@ -19,6 +20,14 @@ class ScrollingTextCard extends HTMLElement {
     this.removeAttribute('color');
   }
 
+  // 接收 hass 对象
+  set hass(hass) {
+    this.hass = hass;
+    if (this.config) {
+      this.setConfig(this.config); // 重新设置配置以更新文本
+    }
+  }
+
   // 必须实现 setConfig 方法来接收配置
   setConfig(config) {
     if (!config.text) {
@@ -27,6 +36,20 @@ class ScrollingTextCard extends HTMLElement {
     if (config.speed && (config.speed <= 0)) {
       throw new Error('Speed must be a positive number');
     }
+    if (config.width && (config.width <= 0)) {
+      throw new Error('Width must be a positive number');
+    }
+    // 获取实体状态
+    const entityId = config.entity;
+    if (entityId) {
+      const stateObj = hass.states[entityId];
+      if (stateObj) {
+        config.text = stateObj.state;
+      } else {
+        console.error(`Entity ${entityId} not found`);
+      }
+    }
+
     this.text = config.text;
     this.speed = config.speed || 20;
     this.title = config.title || "滚动通知";
