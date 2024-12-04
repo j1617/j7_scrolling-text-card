@@ -182,7 +182,7 @@ customElements.define('scrolling-text-card', ScrollingTextCard);
 class ScrollingTextCardEditor extends HTMLElement {
   constructor() {
     super();
-    this.attachShadow({ mode: 'open' });
+    this.attachShadow({ mode: 'open' }); // 确保 shadowRoot 被正确初始化
     this._config = {};
   }
 
@@ -196,6 +196,11 @@ class ScrollingTextCardEditor extends HTMLElement {
   }
 
   render() {
+    if (!this.shadowRoot) {
+      console.error('shadowRoot is not defined');
+      return;
+    }
+
     const card = document.createElement('ha-card');
     card.header = '编辑滚动文本卡片';
 
@@ -247,7 +252,7 @@ class ScrollingTextCardEditor extends HTMLElement {
     });
 
     card.appendChild(cardContent);
-    this.shadowRoot.innerHTML = '';
+    this.shadowRoot.innerHTML = ''; // 清空 shadowRoot 内容
     this.shadowRoot.appendChild(card);
   }
 }
