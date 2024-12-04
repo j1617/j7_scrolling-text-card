@@ -7,6 +7,12 @@ class ScrollingTextCard extends HTMLElement {
     this.width = '100%'; // 默认宽度
     this.height = '100px'; // 默认高度
     this.title = '滚动通知'; // 默认标题
+    // 清除所有预设属性
+    this.removeAttribute('text');
+    this.removeAttribute('speed');
+    this.removeAttribute('width');
+    this.removeAttribute('height');
+    this.removeAttribute('title');
   }
 
   // 必须实现 setConfig 方法来接收配置
@@ -14,7 +20,7 @@ class ScrollingTextCard extends HTMLElement {
     if (!config.text) {
       throw new Error('Missing required "text" configuration');
     }
-    if (config.speed === undefined || config.speed <= 0) {
+    if (config.speed && (config.speed <= 0)) {
       throw new Error('Speed must be a positive number');
     }
     this.text = config.text;
@@ -24,23 +30,7 @@ class ScrollingTextCard extends HTMLElement {
     this.height = config.height || '100px';  // 设置默认高度
     this.render();
   }
-
-    // 蹇呴』瀹炵幇 setConfig 鏂规硶鏉ユ帴鏀堕厤缃�
-    setConfig(config) {
-      if (!config.text) {
-        throw new Error('Missing required "text" configuration');
-      }
-      if (config.speed && (config.speed <= 0)) {
-        throw new Error('Speed must be a positive number');
-      }
-      this.text = config.text;
-      this.speed = config.speed || 20;
-      this.title = config.title || "婊氬姩閫氱煡";
-      this.width = config.width || '100%';  // 璁剧疆榛樿瀹藉害
-      this.height = config.height || '100px';  // 璁剧疆榛樿楂樺害
-      this.render();
-    }
-
+  
   // 返回当前配置，用于UI编辑
   getConfig() {
     return {
@@ -158,6 +148,12 @@ class ScrollingTextCardEditor extends HTMLElement {
     console.log('Connected callback:', this.getAttribute('config'));
     // 初始化 config
     this.config = this.getAttribute('config') ? JSON.parse(this.getAttribute('config')) : {};
+    if (!this.config.text) {
+      this.config.text = ''; // 提供默认值
+    }
+    if (!this.config.speed) {
+      this.config.speed = 20; // 提供默认值
+    }
     this.innerHTML = `
       <div>
         <label for="text">Text:</label>
