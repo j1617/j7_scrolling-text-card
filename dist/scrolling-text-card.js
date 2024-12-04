@@ -14,7 +14,7 @@ class ScrollingTextCard extends HTMLElement {
     if (!config.text) {
       throw new Error('Missing required "text" configuration');
     }
-    if (config.speed && (config.speed <= 0)) {
+    if (config.speed === undefined || config.speed <= 0) {
       throw new Error('Speed must be a positive number');
     }
     this.text = config.text;
@@ -64,7 +64,7 @@ class ScrollingTextCard extends HTMLElement {
         display: inline-block;
         white-space: nowrap;
         position: absolute;
-        left: 100%; /* 初始位置在卡片右侧 */
+        left: 0; /* 初始位置在卡片左侧 */
         top: 50%;
         transform: translateY(-50%);
         animation: scrollText ${this.speed}s linear infinite;
@@ -74,7 +74,7 @@ class ScrollingTextCard extends HTMLElement {
   
       @keyframes scrollText {
         0% {
-          left: 100%; /* 初始位置在卡片右侧 */
+          left: 0; /* 初始位置在卡片左侧 */
         }
         100% {
           left: -100%; /* 结束位置在卡片左侧 */
@@ -82,6 +82,31 @@ class ScrollingTextCard extends HTMLElement {
       }
     `;
     this.shadowRoot.appendChild(style);
+  }
+
+  startScrolling() {
+    let left = 0;
+    const container = this.shadowRoot.querySelector('.scrolling-container');
+    const step = 1; // 每帧移动的像素数
+    const interval = 1000 / this.speed; // 每秒移动的帧数
+  
+    const animate = () => {
+      left -= step;
+      if (left < -container.offsetWidth) {
+        left = this.offsetWidth;
+      }
+      container.style.left = `${left}px`;
+      requestAnimationFrame(animate);
+    };
+  
+    animate();
+  }
+  
+  render() {
+    // 其他代码...
+    this.shadowRoot.appendChild(card);
+    this.styleScroll();
+    this.startScrolling(); // 启动滚动
   }
 
   // 让卡片支持配置面板
@@ -101,7 +126,7 @@ class ScrollingTextCard extends HTMLElement {
 
   // 可视化编辑面板
   static getStubConfig() {
-    return { text: '欢迎使用滚动文本卡片', speed: 50, title: '滚动通知', width: '100%', height: '100px' };
+    return { text: '欢迎使用滚动文本卡片', speed: 20, title: '滚动通知', width: '100%', height: '100px' };
   }
 }
 
@@ -150,14 +175,28 @@ class ScrollingTextCardEditor extends HTMLElement {
         <button id="apply-config">应用配置</button>
       </div>
     `;
-    
+  
     this.shadowRoot.querySelector('#apply-config').addEventListener('click', () => {
+      const speed = parseInt(this.shadowRoot.querySelector('#speed').value, 10);
+      const width = this.shadowRoot.querySelector('#width').value;
+      const height = this.shadowRoot.querySelector('#height').value;
+  
+      if (isNaN(speed) || speed <= 0) {
+        alert('滚动速度必须为正整数');
+        return;
+      }
+  
+      if (!/^\d+(\.\d+)?(px|%)$/.test(width) || !/^\d+(\.\d+)?(px|%)$/.test(height)) {
+        alert('宽度和高度必须为有效的 CSS 尺寸值');
+        return;
+      }
+  
       this.config = {
         title: this.shadowRoot.querySelector('#title').value,
         text: this.shadowRoot.querySelector('#text').value,
-        speed: parseInt(this.shadowRoot.querySelector('#speed').value, 10),
-        width: this.shadowRoot.querySelector('#width').value,
-        height: this.shadowRoot.querySelector('#height').value,
+        speed: speed,
+        width: width,
+        height: height,
       };
       this.dispatchEvent(new CustomEvent('config-changed', {
         detail: this.config,
