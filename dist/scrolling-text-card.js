@@ -137,7 +137,6 @@ customElements.define('scrolling-text-card', ScrollingTextCard);
 class ScrollingTextCardEditor extends HTMLElement {
   constructor() {
     super();
-    // 确保这里没有设置任何属性
   }
 
   static get observedAttributes() {
@@ -160,12 +159,20 @@ class ScrollingTextCardEditor extends HTMLElement {
         <input type="text" id="text" value="${this.config.text || ''}" />
         <label for="speed">Speed:</label>
         <input type="number" id="speed" value="${this.config.speed || 0}" />
-        <!-- 其他配置项 -->
+        <label for="title">Title:</label>
+        <input type="text" id="title" value="${this.config.title || ''}" />
+        <label for="width">Width:</label>
+        <input type="text" id="width" value="${this.config.width || ''}" />
+        <label for="height">Height:</label>
+        <input type="text" id="height" value="${this.config.height || ''}" />
       </div>
     `;
     // 绑定事件
     this.querySelector('#text').addEventListener('input', this._handleTextChange.bind(this));
     this.querySelector('#speed').addEventListener('input', this._handleSpeedChange.bind(this));
+    this.querySelector('#title').addEventListener('input', this._handleTitleChange.bind(this));
+    this.querySelector('#width').addEventListener('input', this._handleWidthChange.bind(this));
+    this.querySelector('#height').addEventListener('input', this._handleHeightChange.bind(this));
     this.render();
   }
 
@@ -187,6 +194,21 @@ class ScrollingTextCardEditor extends HTMLElement {
     this._dispatchConfigChanged();
   }
 
+  _handleTitleChange(event) {
+    this.config.title = event.target.value;
+    this._dispatchConfigChanged();
+  }
+
+  _handleWidthChange(event) {
+    this.config.width = event.target.value;
+    this._dispatchConfigChanged();
+  }
+
+  _handleHeightChange(event) {
+    this.config.height = event.target.value;
+    this._dispatchConfigChanged();
+  }
+
   _dispatchConfigChanged() {
     this.dispatchEvent(new CustomEvent('config-changed', { detail: this.config }));
   }
@@ -201,7 +223,12 @@ class ScrollingTextCardEditor extends HTMLElement {
         <input type="text" id="text" value="${this.config.text || ''}" />
         <label for="speed">Speed:</label>
         <input type="number" id="speed" value="${this.config.speed || 0}" />
-        <!-- 其他配置项 -->
+        <label for="title">Title:</label>
+        <input type="text" id="title" value="${this.config.title || ''}" />
+        <label for="width">Width:</label>
+        <input type="text" id="width" value="${this.config.width || ''}" />
+        <label for="height">Height:</label>
+        <input type="text" id="height" value="${this.config.height || ''}" />
       </div>
     `;
   }
